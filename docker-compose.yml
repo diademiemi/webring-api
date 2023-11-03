@@ -1,0 +1,15 @@
+services:
+  postgresql:
+    image: bitnami/postgresql:latest
+    ports:
+      - 5432:5432
+    volumes:
+        - webring_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=webring
+      - POSTGRESQL_PASSWORD=webring
+      - POSTGRESQL_DATABASE=webring
+
+volumes:
+  postgresql_data:
+    driver: local
