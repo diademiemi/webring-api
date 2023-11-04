@@ -6,7 +6,7 @@ import java.util.*
 
 
 @Entity
-class Site() : PanacheEntity() {
+class Site : PanacheEntity() {
     lateinit var name: String
     lateinit var domain: String
     var path: String = "/"

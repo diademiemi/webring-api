@@ -17,7 +17,7 @@ class SiteResourceTest {
         var initialSites = ArrayList<Site>()
 
     }
-    
+
     @Test
     @Order(1)
     fun populateSiteList() {
@@ -65,6 +65,7 @@ class SiteResourceTest {
             .statusCode(201)
             .assertThat().body("name", org.hamcrest.Matchers.equalTo("Test Site A"))
     }
+
     @Test
     @Order(3)
     fun testListSitesEndpoint1() {
@@ -94,6 +95,7 @@ class SiteResourceTest {
             .statusCode(201)
             .assertThat().body("name", org.hamcrest.Matchers.equalTo("Test Site B"))
     }
+
     @Test
     @Order(5)
     fun testListSitesEndpoint2() {
@@ -105,8 +107,6 @@ class SiteResourceTest {
             .assertThat().body("size()", org.hamcrest.Matchers.greaterThan(0))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site A"))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site B"))
-
-
     }
 
 }

@@ -48,12 +48,18 @@ class SiteChecker(val siteRepository: SiteRepository) {
                 var found = false
 
                 if (Env.webring_https.toBoolean()) {
-                    if (response.body().contains("https://${Env.webring_host}${Env.webring_path}/next?source=${site.domain}") && response.body().contains("${Env.webring_host}${Env.webring_path}/prev?source=${site.domain}")) {
+                    if (response.body()
+                            .contains("https://${Env.webring_host}${Env.webring_path}/next?source=${site.domain}") && response.body()
+                            .contains("${Env.webring_host}${Env.webring_path}/prev?source=${site.domain}")
+                    ) {
                         found = true
                         siteRepository.persist(site)
                     }
                 }
-                if (response.body().contains("http://${Env.webring_host}${Env.webring_path}/next?source=${site.domain}") && response.body().contains("${Env.webring_host}${Env.webring_path}/prev?source=${site.domain}")) {
+                if (response.body()
+                        .contains("http://${Env.webring_host}${Env.webring_path}/next?source=${site.domain}") && response.body()
+                        .contains("${Env.webring_host}${Env.webring_path}/prev?source=${site.domain}")
+                ) {
                     found = true
                     siteRepository.persist(site)
                 }
