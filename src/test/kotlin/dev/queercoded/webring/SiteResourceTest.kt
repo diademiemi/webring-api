@@ -75,8 +75,38 @@ class SiteResourceTest {
             .statusCode(200)
             .assertThat().body("size()", org.hamcrest.Matchers.greaterThan(0))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site A"))
+
+
+    }
+
+    @Test
+    @Order(4)
+    @Transactional
+    fun testCreateNewSiteEndpoint2() {
+
+        given()
+            .`when`()
+            .contentType("application/json")
+            .body(initialSites[1])
+            .header("Authorization", "Bearer ${Env.api_token}")
+            .post("/sites")
+            .then()
+            .statusCode(201)
+            .assertThat().body("name", org.hamcrest.Matchers.equalTo("Test Site B"))
+    }
+    @Test
+    @Order(5)
+    fun testListSitesEndpoint2() {
+        given()
+            .`when`()
+            .get("/sites/all")
+            .then()
+            .statusCode(200)
+            .assertThat().body("size()", org.hamcrest.Matchers.greaterThan(0))
+            .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site A"))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site B"))
 
 
     }
+
 }
