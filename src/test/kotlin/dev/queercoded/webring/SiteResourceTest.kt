@@ -76,8 +76,6 @@ class SiteResourceTest {
             .statusCode(200)
             .assertThat().body("size()", org.hamcrest.Matchers.greaterThan(0))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site A"))
-
-
     }
 
     @Test

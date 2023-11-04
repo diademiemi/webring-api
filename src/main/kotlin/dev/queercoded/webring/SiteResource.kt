@@ -100,21 +100,21 @@ class SiteResource(val siteRepository: SiteRepository) {
         }
     }
 
-//    @GET
-//    @Path("/")
-//    fun getRandomSite(): Response {
-//        val sites = listEnabledSites()
-//        val randomSite = sites.random()
-//        // Send redirect to the random site
-//        // Vars are domain, https: Bool, path, build this into URL
-//        return if (randomSite.https) {
-//            Response.status(Response.Status.MOVED_PERMANENTLY)
-//                .location(URI("https://${randomSite.domain}${randomSite.path}")).build()
-//        } else {
-//            Response.status(Response.Status.MOVED_PERMANENTLY)
-//                .location(URI("http://${randomSite.domain}${randomSite.path}")).build()
-//        }
-//    }
+    @GET
+    @Path("/")
+    fun getRandomSite(): Response {
+        val sites = listEnabledSites()
+        val randomSite = sites.random()
+        // Send redirect to the random site
+        // Vars are domain, https: Bool, path, build this into URL
+        return if (randomSite.https) {
+            Response.status(Response.Status.MOVED_PERMANENTLY)
+                .location(URI("https://${randomSite.domain}${randomSite.path}")).build()
+        } else {
+            Response.status(Response.Status.MOVED_PERMANENTLY)
+                .location(URI("http://${randomSite.domain}${randomSite.path}")).build()
+        }
+    }
 
 
     // ADMIN API CALLS
