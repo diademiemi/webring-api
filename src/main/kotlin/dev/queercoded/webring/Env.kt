@@ -1,10 +1,8 @@
-package dev.queercoded
-
-import org.jboss.resteasy.reactive.RestHeader
+package dev.queercoded.webring
 
 class Env {
     companion object {
-        var api_token: String = System.getenv("WEBRING_API_TOKEN") ?: ""
+        var api_token: String = System.getenv("WEBRING_API_TOKEN") ?: "ADMIN_TOKEN_CHANGE_ME"
 
         var webring_host: String = System.getenv("WEBRING_HOST")?.toString() ?: "localhost"
 
@@ -15,7 +13,7 @@ class Env {
 
         var webring_https: String = System.getenv("WEBRING_HTTPS")?.toString() ?: "false"
 
-        var webring_scraper_user_agent: String = System.getenv("WEBRING_SCRAPER_USER_AGENT")?.toString() ?: "Mozilla/5.0 (compatible; Googlebot/2.1; Website Webring Scraper; +https://${webring_host}${webring_path}"
+        var webring_scraper_user_agent: String = System.getenv("WEBRING_SCRAPER_USER_AGENT")?.toString() ?: "Mozilla/5.0 (compatible; Googlebot/2.1; Website Webring Scraper; +https://$webring_host$webring_path"
 
     }
 

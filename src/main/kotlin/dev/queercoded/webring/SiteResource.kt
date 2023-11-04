@@ -1,4 +1,4 @@
-package dev.queercoded
+package dev.queercoded.webring
 
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.*
@@ -10,10 +10,8 @@ import java.net.URI
 @Path("/")
 class SiteResource(val siteRepository: SiteRepository) {
 
-    companion object {
-        @RestHeader("Authorization")
-        lateinit var authHeader: String
-    }
+    @RestHeader("Authorization")
+    lateinit var authHeader: String
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -32,19 +30,48 @@ class SiteResource(val siteRepository: SiteRepository) {
         return Response.ok(site).status(200).build()
     }
 
+    fun getNextSite(sourceDomain: String): Site {
+        val sites = listEnabledSites()
+        val site = sites.find { it.domain == sourceDomain } ?: return Site()
+        val index = sites.indexOf(site)
+        val nextIndex = if (index == sites.lastIndex) 0 else index + 1
+        return sites[nextIndex]
+    }
+
+    fun getPrevSite(sourceDomain: String): Site {
+        val sites = listEnabledSites()
+        val site = sites.find { it.domain == sourceDomain } ?: return Site()
+        val index = sites.indexOf(site)
+        val prevIndex = if (index == 0) sites.lastIndex else index - 1
+        return sites[prevIndex]
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sites/next/{source_domain}")
+    fun getNextSiteJson(@PathParam("source_domain") sourceDomain: String): Response {
+        val site = getNextSite(sourceDomain)
+        return Response.ok(site).status(200).build()
+    }
+
     fun listEnabledSites(): List<Site> {
         return siteRepository.listAll().filter { it.enabled && !it.dead_end }
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sites/prev/{source_domain}")
+    fun getPrevSiteJson(@PathParam("source_domain") sourceDomain: String): Response {
+        val site = getPrevSite(sourceDomain)
+        return Response.ok(site).status(200).build()
+    }
+
+    @GET
     @Path("/next?source={source_domain}")
     // Get the next site in order of creation. Find the given source_domain and return the next site. If the source_domain is the last site, return the first site.
-    fun gotoNextSite(@PathParam("source_domain") source_domain: String): Response {
-        val sites = listEnabledSites()
-        val site = sites.find { it.domain == source_domain } ?: return Response.ok().status(404).build()
-        val index = sites.indexOf(site)
-        val nextIndex = if (index == sites.lastIndex) 0 else index + 1
-        val nextSite = sites[nextIndex]
+    fun gotoNextSite(@PathParam("source_domain") sourceDomain: String): Response {
+        val nextSite = getNextSite(sourceDomain)
+
         // Send redirect to the next
         // Vars are domain, https: Bool, path, build this into URL
         return if (nextSite.https) {
@@ -60,11 +87,8 @@ class SiteResource(val siteRepository: SiteRepository) {
     @Path("/prev?source={source_domain}")
     // Get the previous site in order of creation. Find the given source_domain and return the previous site. If the source_domain is the first site, return the last site.
     fun gotoPrevSite(@PathParam("source_domain") source_domain: String): Response {
-        val sites = listEnabledSites()
-        val site = sites.find { it.domain == source_domain } ?: return Response.ok().status(404).build()
-        val index = sites.indexOf(site)
-        val prevIndex = if (index == 0) sites.lastIndex else index - 1
-        val prevSite = sites[prevIndex]
+        val prevSite = getPrevSite(source_domain)
+
         // Send redirect to the prev
         // Vars are domain, https: Bool, path, build this into URL
         return if (prevSite.https) {
@@ -76,21 +100,21 @@ class SiteResource(val siteRepository: SiteRepository) {
         }
     }
 
-    @GET
-    @Path("/")
-    fun getRandomSite(): Response {
-        val sites = listEnabledSites()
-        val randomSite = sites.random()
-        // Send redirect to the random site
-        // Vars are domain, https: Bool, path, build this into URL
-        return if (randomSite.https) {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
-                .location(URI("https://${randomSite.domain}${randomSite.path}")).build()
-        } else {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
-                .location(URI("http://${randomSite.domain}${randomSite.path}")).build()
-        }
-    }
+//    @GET
+//    @Path("/")
+//    fun getRandomSite(): Response {
+//        val sites = listEnabledSites()
+//        val randomSite = sites.random()
+//        // Send redirect to the random site
+//        // Vars are domain, https: Bool, path, build this into URL
+//        return if (randomSite.https) {
+//            Response.status(Response.Status.MOVED_PERMANENTLY)
+//                .location(URI("https://${randomSite.domain}${randomSite.path}")).build()
+//        } else {
+//            Response.status(Response.Status.MOVED_PERMANENTLY)
+//                .location(URI("http://${randomSite.domain}${randomSite.path}")).build()
+//        }
+//    }
 
 
     // ADMIN API CALLS
@@ -165,12 +189,10 @@ class SiteResource(val siteRepository: SiteRepository) {
             return Response.ok().status(401).build()
         }
 
-        val oldSite = siteRepository.findById(id) ?: return Response.ok().status(404).build()
-        oldSite.name = site.name
-        oldSite.domain = site.domain
-        oldSite.author = site.author
-        oldSite.enabled = site.enabled
-        siteRepository.persist(oldSite)
+        var oldSite = siteRepository.findById(id) ?: return Response.ok().status(404).build()
+        site.id = oldSite.id
+
+        siteRepository.persist(site)
         return Response.ok(oldSite).status(200).build()
     }
 

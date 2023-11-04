@@ -1,6 +1,6 @@
-package dev.queercoded
+package dev.queercoded.webring
 
 import io.quarkus.test.junit.QuarkusIntegrationTest
 
 @QuarkusIntegrationTest
-class GreetingResourceIT : GreetingResourceTest()
+class SiteResourceIT : SiteResourceTest()

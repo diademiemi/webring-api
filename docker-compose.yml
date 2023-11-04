@@ -11,5 +11,5 @@ services:
       - POSTGRESQL_DATABASE=webring
 
 volumes:
-  postgresql_data:
+  webring_data:
     driver: local

@@ -1,4 +1,4 @@
-package dev.queercoded
+package dev.queercoded.webring
 
 import io.quarkus.scheduler.Scheduled
 import jakarta.transaction.Transactional
@@ -8,7 +8,7 @@ import java.net.http.HttpResponse
 
 class SiteChecker(val siteRepository: SiteRepository) {
 
-    @Scheduled(every = "{check_interval}")
+    @Scheduled(cron = "{webring.scrape_cron}")
     @Transactional
             /*
              Check every enabled site whether the URL (proto + domain + path) contains a reference to

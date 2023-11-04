@@ -1,4 +1,4 @@
-package dev.queercoded
+package dev.queercoded.webring
 
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
 import jakarta.enterprise.context.ApplicationScoped

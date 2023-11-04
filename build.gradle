@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
     implementation 'io.quarkus:quarkus-scheduler'
     implementation 'io.quarkus:quarkus-jdbc-postgresql'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache-kotlin'
@@ -22,9 +23,10 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy-reactive'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.testcontainers:testcontainers:1.19.1'
 }
 
-group 'dev.queercoded'
+group 'dev.queercoded.webring'
 version '1.0.0-SNAPSHOT'
 
 java {
@@ -49,3 +51,4 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_17
 }
+
