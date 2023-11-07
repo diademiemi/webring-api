@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile
+          file: src/main/docker/Dockerfile.native
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/app:${{ github.sha }}${{ matrix.tag_suffix }}
