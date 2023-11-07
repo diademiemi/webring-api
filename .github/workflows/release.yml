@@ -60,7 +60,6 @@ jobs:
         with:
           context: .
           file: src/main/docker/Dockerfile.native
-          load: true
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/app:${{ github.sha }}${{ matrix.tag_suffix }}
