@@ -62,8 +62,8 @@ jobs:
           file: src/main/docker/Dockerfile.native
           platforms: linux/${{ matrix.arch }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/app:${{ github.sha }}${{ matrix.tag_suffix }}
-            ghcr.io/${{ github.repository_owner }}/app:${{ matrix.latest_tag }}
+            ghcr.io/${{ github.repository_owner }}/webring-api:${{ github.sha }}${{ matrix.tag_suffix }}
+            ghcr.io/${{ github.repository_owner }}/webring-api:${{ matrix.latest_tag }}
           push: true
 
       - name: Logout of GitHub Container Registry
