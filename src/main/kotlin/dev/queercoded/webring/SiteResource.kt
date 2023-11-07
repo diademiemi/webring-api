@@ -30,6 +30,10 @@ class SiteResource(val siteRepository: SiteRepository) {
         return Response.ok(site).status(200).build()
     }
 
+    fun listEnabledSites(): List<Site> {
+        return siteRepository.listAll().filter { it.enabled && !it.dead_end }
+    }
+
     fun getNextSite(sourceDomain: String): Site {
         val sites = listEnabledSites()
         val site = sites.find { it.domain == sourceDomain } ?: return Site()
@@ -53,11 +57,6 @@ class SiteResource(val siteRepository: SiteRepository) {
         val site = getNextSite(sourceDomain)
         return Response.ok(site).status(200).build()
     }
-
-    fun listEnabledSites(): List<Site> {
-        return siteRepository.listAll().filter { it.enabled && !it.dead_end }
-    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/sites/prev/{source_domain}")
