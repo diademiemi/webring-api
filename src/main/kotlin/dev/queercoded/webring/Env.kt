@@ -6,7 +6,7 @@ class Env {
 
         var webring_host: String = System.getenv("WEBRING_HOST")?.toString() ?: "localhost"
 
-        var webring_path: String = System.getenv("WEBRINGPATH")?.toString() ?: "/"
+        var webring_path: String = System.getenv("WEBRING_PATH")?.toString() ?: "/"
 
         var webring_http_port: String = System.getenv("WEBRING_HTTP_PORT")?.toString() ?: "8080"
         var webring_https_port: String =
@@ -18,6 +18,5 @@ class Env {
             ?: "Mozilla/5.0 (compatible; Googlebot/2.1; Website Webring Scraper; +https://$webring_host$webring_path"
 
     }
-
 
 }

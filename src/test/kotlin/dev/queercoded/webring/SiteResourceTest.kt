@@ -97,7 +97,7 @@ class SiteResourceTest {
     @Test
     @Order(5)
     fun testListSitesEndpoint2() {
-        given()
+        var sites: Array<Site> = given()
             .`when`()
             .get("/sites/all")
             .then()
@@ -105,6 +105,12 @@ class SiteResourceTest {
             .assertThat().body("size()", org.hamcrest.Matchers.greaterThan(0))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site A"))
             .assertThat().body("name", org.hamcrest.Matchers.hasItem("Test Site B"))
+            .extract().`as`(Array<Site>::class.java)
+
     }
+//
+//    @Test
+//    @Order(6)
+//    fun testList
 
 }

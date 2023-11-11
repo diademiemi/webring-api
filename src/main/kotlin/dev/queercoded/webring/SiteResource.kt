@@ -66,7 +66,7 @@ class SiteResource(val siteRepository: SiteRepository) {
     }
 
     @GET
-    @Path("/next?source={source_domain}")
+    @Path("/sites/next?source={source_domain}")
     // Get the next site in order of creation. Find the given source_domain and return the next site. If the source_domain is the last site, return the first site.
     fun gotoNextSite(@PathParam("source_domain") sourceDomain: String): Response {
         val nextSite = getNextSite(sourceDomain)
@@ -83,7 +83,7 @@ class SiteResource(val siteRepository: SiteRepository) {
     }
 
     @GET
-    @Path("/prev?source={source_domain}")
+    @Path("/sites/prev?source={source_domain}")
     // Get the previous site in order of creation. Find the given source_domain and return the previous site. If the source_domain is the first site, return the last site.
     fun gotoPrevSite(@PathParam("source_domain") source_domain: String): Response {
         val prevSite = getPrevSite(source_domain)
