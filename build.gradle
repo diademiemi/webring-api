@@ -15,7 +15,7 @@ publishing {
     repositories {
         maven {
             name = "GitHub"
-            url = "https://maven.pkg.github.com/queercoded-dev/webring-api"
+            url = uri("https://maven.pkg.github.com/queercoded-dev/webring-api")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
@@ -25,9 +25,6 @@ publishing {
     publications {
         register("jar", MavenPublication) {
             from(components["java"])
-            pom {
-                url.set("https://github.com/queercoded-dev/webring-api")
-            }
         }
     }
 }
