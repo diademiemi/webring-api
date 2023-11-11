@@ -71,6 +71,8 @@ jobs:
 
       - name: Publish package
         uses: gradle/gradle-build-action@v2
+        # Only run on amd64
+        if: matrix.arch == 'amd64'
         with:
           arguments: publish
         env:
