@@ -69,3 +69,9 @@ jobs:
       - name: Logout of GitHub Container Registry
         run: docker logout ghcr.io
 
+      - name: Publish package
+        uses: gradle/gradle-build-action@2.9.0
+        with:
+          arguments: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
