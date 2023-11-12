@@ -6,9 +6,9 @@ services:
     volumes:
         - webring_data:/bitnami/postgresql
     environment:
-      - POSTGRESQL_USERNAME=webring
-      - POSTGRESQL_PASSWORD=webring
-      - POSTGRESQL_DATABASE=webring
+      - POSTGRESQL_USERNAME=quarkus
+      - POSTGRESQL_PASSWORD=quarkus
+      - POSTGRESQL_DATABASE=quarkus
 
 volumes:
   webring_data:

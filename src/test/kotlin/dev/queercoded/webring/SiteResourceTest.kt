@@ -3,6 +3,7 @@ package dev.queercoded.webring
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import jakarta.transaction.Transactional
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -11,6 +12,10 @@ import org.junit.jupiter.api.TestMethodOrder
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SiteResourceTest {
+
+
+    @ConfigProperty(name="webring.api_token")
+    lateinit var api_token: String
 
     companion object {
 
@@ -59,7 +64,7 @@ class SiteResourceTest {
             .`when`()
             .contentType("application/json")
             .body(initialSites[0])
-            .header("Authorization", "Bearer ${Env.api_token}")
+            .header("Authorization", "Bearer ${api_token}")
             .post("/sites")
             .then()
             .statusCode(201)
@@ -87,7 +92,7 @@ class SiteResourceTest {
             .`when`()
             .contentType("application/json")
             .body(initialSites[1])
-            .header("Authorization", "Bearer ${Env.api_token}")
+            .header("Authorization", "Bearer ${api_token}")
             .post("/sites")
             .then()
             .statusCode(201)

@@ -9,11 +9,15 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.jboss.resteasy.reactive.RestHeader
 import java.net.URI
 
 @Path("/")
 class SiteResource(val siteRepository: SiteRepository) {
+
+    @ConfigProperty(name="webring.api_token")
+    lateinit var api_token: String
 
     @Inject
     @Location("index.html")
@@ -119,7 +123,7 @@ class SiteResource(val siteRepository: SiteRepository) {
     // ADMIN API CALLS
 
     fun checkIfAuthenticated(): Boolean {
-        return authHeader == "Bearer ${Env.api_token}"
+        return authHeader == "Bearer ${api_token}"
     }
 
     @GET
