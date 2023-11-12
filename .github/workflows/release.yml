@@ -5,6 +5,9 @@ on:
     branches:
       - 'main'
 
+env:
+  QUARKUS_TEST_POSTGRES_DEVSERVICES_ENABLED: true
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
