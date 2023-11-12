@@ -6,15 +6,15 @@ import java.util.*
 
 
 @Entity
-class Site : PanacheEntity() {
-    lateinit var name: String
-    lateinit var domain: String
-    var path: String = "/"
-    var https: Boolean = true
-    lateinit var author: String
-    var date: Date = Date()
-    var enabled: Boolean = true
-    var disable_checks: Boolean = false
-    var dead_end: Boolean = false
+open class Site : PanacheEntity() {
+    open lateinit var name: String
+    open lateinit var domain: String
+    open var path: String = "/"
+    open var https: Boolean = true
+    open lateinit var author: String
+    open var date: Date = Date()
+    open var enabled: Boolean = true
+    open var disable_checks: Boolean = false
+    open var dead_end: Boolean = false
 
 }

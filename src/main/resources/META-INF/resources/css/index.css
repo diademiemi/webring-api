@@ -1,0 +1,212 @@
+:root {
+    --emoji-scale: 1em;
+}
+
+@font-face {
+    font-family: 'Agave';
+    /* font-weight: bold; */
+    src: url("./Agave-Regular.ttf");
+}
+
+html {
+    background-color: black;
+}
+
+body {
+    /* width: 100%; */
+    margin: 0;
+    background-color: #111;
+    color: #0FD903;
+    font-family: 'Agave';
+    /*     min-height: calc(100% - 1em); */
+    /* height: 100%; */
+    min-height: 100%;
+
+    background: radial-gradient(circle, #111 50%, black 150%);
+}
+
+.container {
+    padding: 10vmin;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100%;
+    /* justify-content: space-around; */
+    justify-content: center;
+    gap: 1.5em;
+}
+
+.imgcontainer {
+    display: inline-block;
+    height: 16vmin;
+    font-size: 16vmin;
+    /* margin-left: .5ch; */
+    margin-right: .5ch;
+    aspect-ratio: 127 / 180;
+    transition: filter .5s ease-in-out, transform .5s ease-in-out;
+    vertical-align: bottom;
+}
+
+.imgcontainer:hover {
+    transform: scale(1.05);
+}
+
+.imgcontainer:hover>img:last-child {
+    filter: blur(1rem);
+    /* opacity: .58; */
+}
+
+.imgcontainer>img {
+    position: absolute;
+    height: 16vmin;
+}
+
+.imgcontainer>img:last-child {
+    filter: blur(.5rem);
+    transition: filter .5s ease-in-out, transform .5s ease-in-out;
+    /* opacity: .58; */
+}
+
+h1 {
+    display: inline-block;
+    font-size: 8vmin;
+    margin: 0;
+    filter: drop-shadow(0 0 0.5rem #0ed90395);
+    transition: filter .5s ease-in-out, transform .5s ease-in-out;
+}
+
+h1:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 1rem #0ed90395);
+}
+
+@keyframes typing {
+    0% { width: 0ch; overflow: clip; }
+    99% { width: 28ch; overflow: clip;}
+    100% { width: 28ch }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #0FD903; }
+}
+
+h3 {
+    font-size: 3vmin;
+    margin: 0;
+    margin-top: -.5em;
+    padding: 1em;
+    margin: -1em;
+    width: 28ch;
+    /* filter: drop-shadow(0 0 0.5rem #0ed90395); */
+    transition: filter .5s ease-in-out, transform .5s ease-in-out;
+    /* font-style: italic; */
+    animation: typing 4s steps(28, end);;/*, blink-caret 1s step-end infinite;*/
+    white-space: nowrap;
+    /* border-right: .15em solid #0FD903; */
+}
+
+h3:hover {
+    transform: scale(1.05);
+}
+
+h3>.text {
+    filter: drop-shadow(0 0 0.5rem #0ed90395);
+}
+
+/* a {
+    color: #0FD903;
+    display: flex;
+    white-space: nowrap;
+    font-size: 5vmin;
+    filter: drop-shadow(0 0 0.25rem #0ed90395);
+    fill: #0FD903;
+    transition: filter .5s ease-in-out, transform .5s ease-in-out;
+}
+
+a:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 1rem #0ed90395);
+} */
+
+.discord {
+    /* width: 10vmin; */
+    /* filter: drop-shadow(0 0 0.5rem #0ed90395); */
+    display: inline-block;
+    height: 1em;
+    width: 2.5em;
+    transform: scale(1.5);
+}
+
+.emojicontainer>*:first-child {
+    filter: blur(.1em);
+    opacity: .58;
+}
+
+.emojicontainer>*:last-child{
+    margin-right: calc(-1 * var(--emoji-scale, 1.4em)) !important;
+    transform: translateX(-100%);
+    /* filter: blur(.25em); */
+
+    /* position: relatives; */
+}
+
+th {
+    font-size: 3vmin;
+    padding: .15em;
+}
+
+thead>tr>th {
+    font-size: 5vmin;
+    text-align: center;
+}
+
+tbody>tr>th:nth-child(1) {
+    text-align: right;
+}
+
+tbody>tr>th:nth-child(2) {
+    text-align: left;
+}
+
+table {
+    border-spacing: 1em 0;
+    table-layout: fixed;
+    width: 100%;
+}
+
+table a {
+    column-rule-style: solid;
+    column-count: 3;
+    padding-left: .2em;
+    color: #0FD903;
+    display: inline-flex;
+    transition: transform .3s ease-in-out   ;
+}
+
+table a:visited {
+    color: #0A9902;
+}
+
+table a:hover {
+    transform: scale(1.05);
+}
+
+.top-container {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-items: center;
+}
+
+.top-container>.imgcontainer {
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+.top-container>h1 {
+    grid-column: 2;
+}
+
+aside {
+    font-size: 48px;
+}

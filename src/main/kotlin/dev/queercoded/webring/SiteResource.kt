@@ -1,17 +1,35 @@
 package dev.queercoded.webring
 
+import io.quarkus.qute.Location
+import io.quarkus.qute.Template
+import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.ext.ExceptionMapper
+import jakarta.ws.rs.ext.Provider
 import org.jboss.resteasy.reactive.RestHeader
 import java.net.URI
 
 @Path("/")
 class SiteResource(val siteRepository: SiteRepository) {
 
+    @Inject
+    @Location("index.html")
+    lateinit var index: Template
+
     @RestHeader("Authorization")
     lateinit var authHeader: String
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.TEXT_HTML)
+    fun index(): Response {
+        return index.data("sites", listEnabledSites()).render().let {
+            Response.ok(it).status(200).build()
+        }
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -66,7 +84,7 @@ class SiteResource(val siteRepository: SiteRepository) {
     }
 
     @GET
-    @Path("/sites/next?source={source_domain}")
+    @Path("/next?source={source_domain}")
     // Get the next site in order of creation. Find the given source_domain and return the next site. If the source_domain is the last site, return the first site.
     fun gotoNextSite(@PathParam("source_domain") sourceDomain: String): Response {
         val nextSite = getNextSite(sourceDomain)
@@ -83,7 +101,7 @@ class SiteResource(val siteRepository: SiteRepository) {
     }
 
     @GET
-    @Path("/sites/prev?source={source_domain}")
+    @Path("/prev?source={source_domain}")
     // Get the previous site in order of creation. Find the given source_domain and return the previous site. If the source_domain is the first site, return the last site.
     fun gotoPrevSite(@PathParam("source_domain") source_domain: String): Response {
         val prevSite = getPrevSite(source_domain)
@@ -98,24 +116,6 @@ class SiteResource(val siteRepository: SiteRepository) {
                 .location(URI("http://${prevSite.domain}${prevSite.path}")).build()
         }
     }
-
-    @GET
-    @Path("/")
-    fun getRandomSite(): Response {
-        val sites = listEnabledSites()
-        val randomSite = sites.random()
-        // Send redirect to the random site
-        // Vars are domain, https: Bool, path, build this into URL
-        return if (randomSite.https) {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
-                .location(URI("https://${randomSite.domain}${randomSite.path}")).build()
-        } else {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
-                .location(URI("http://${randomSite.domain}${randomSite.path}")).build()
-        }
-    }
-
-
     // ADMIN API CALLS
 
     fun checkIfAuthenticated(): Boolean {
@@ -223,4 +223,19 @@ class SiteResource(val siteRepository: SiteRepository) {
         return Response.ok(site).status(201).build()
     }
 
+}
+
+
+@Provider
+class SiteExceptionManager : ExceptionMapper<NotFoundException> {
+    @Inject
+    @Location("404.html")
+    lateinit var notFoundTemplate: Template
+
+    @Produces(MediaType.TEXT_HTML)
+    override fun toResponse(exception: NotFoundException?): Response? {
+        return notFoundTemplate.data("exception", exception).render().let {
+            Response.status(Response.Status.NOT_FOUND).entity(it).build()
+        }
+    }
 }

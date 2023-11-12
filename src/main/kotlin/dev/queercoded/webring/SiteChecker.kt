@@ -49,16 +49,20 @@ class SiteChecker(val siteRepository: SiteRepository) {
 
                 if (Env.webring_https.toBoolean()) {
                     if (response.body()
-                            .contains("https://${Env.webring_host}${Env.webring_path}/sites/next?source=${site.domain}") && response.body()
-                            .contains("${Env.webring_host}${Env.webring_path}/sites/prev?source=${site.domain}")
+                            .contains("https://${Env.webring_host}${Env.webring_path}/next?source=${site.domain}") || response.body()
+                            .contains("https://${Env.webring_host}:${Env.webring_https_port}${Env.webring_path}/next?source=${site.domain}") && response.body()
+                            .contains("https://${Env.webring_host}${Env.webring_path}/prev?source=${site.domain}") || response.body()
+                            .contains("https://${Env.webring_host}:${Env.webring_https_port}${Env.webring_path}/prev?source=${site.domain}")
                     ) {
                         found = true
                         siteRepository.persist(site)
                     }
                 }
                 if (response.body()
-                        .contains("http://${Env.webring_host}${Env.webring_path}/sites/next?source=${site.domain}") && response.body()
-                        .contains("${Env.webring_host}${Env.webring_path}/sites/prev?source=${site.domain}")
+                        .contains("http://${Env.webring_host}${Env.webring_path}/next?source=${site.domain}") || response.body()
+                        .contains("http://${Env.webring_host}:${Env.webring_http_port}${Env.webring_path}/next?source=${site.domain}") && response.body()
+                        .contains("http://${Env.webring_host}${Env.webring_path}/prev?source=${site.domain}") || response.body()
+                        .contains("http://${Env.webring_host}:${Env.webring_http_port}${Env.webring_path}/prev?source=${site.domain}")
                 ) {
                     found = true
                     siteRepository.persist(site)
