@@ -88,9 +88,9 @@ class SiteResource(val siteRepository: SiteRepository) {
     }
 
     @GET
-    @Path("/next?source={source_domain}")
+    @Path("/next")
     // Get the next site in order of creation. Find the given source_domain and return the next site. If the source_domain is the last site, return the first site.
-    fun gotoNextSite(@PathParam("source_domain") sourceDomain: String): Response {
+    fun gotoNextSite(@QueryParam("source") sourceDomain: String): Response {
         val nextSite = getNextSite(sourceDomain)
 
         // Send redirect to the next
@@ -105,9 +105,9 @@ class SiteResource(val siteRepository: SiteRepository) {
     }
 
     @GET
-    @Path("/prev?source={source_domain}")
+    @Path("/prev")
     // Get the previous site in order of creation. Find the given source_domain and return the previous site. If the source_domain is the first site, return the last site.
-    fun gotoPrevSite(@PathParam("source_domain") source_domain: String): Response {
+    fun gotoPrevSite(@QueryParam("source") source_domain: String): Response {
         val prevSite = getPrevSite(source_domain)
 
         // Send redirect to the prev
@@ -137,6 +137,32 @@ class SiteResource(val siteRepository: SiteRepository) {
 
         val site = siteRepository.findById(id) ?: return Response.ok().status(404).build()
         return Response.ok(site).status(200).build()
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sites/disabled")
+    fun getSitesDisabled(): Response {
+        // Check if authHeader is set
+        if (!checkIfAuthenticated()) {
+            return Response.ok().status(401).build()
+        }
+
+        val sites = siteRepository.listAll().filter { !it.enabled }
+        return Response.ok(sites).status(200).build()
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sites/all-dead-end")
+    fun getSitesDeadEnd(): Response {
+        // Check if authHeader is set
+        if (!checkIfAuthenticated()) {
+            return Response.ok().status(401).build()
+        }
+
+        val sites = siteRepository.listAll().filter { it.dead_end }
+        return Response.ok(sites).status(200).build()
     }
 
     @GET
@@ -192,10 +218,30 @@ class SiteResource(val siteRepository: SiteRepository) {
             return Response.ok().status(401).build()
         }
 
-        var oldSite = siteRepository.findById(id) ?: return Response.ok().status(404).build()
-        site.id = oldSite.id
+        // Check if site with new name exists
+        val siteWithNewName = siteRepository.findByName(site.name)
+        if (siteWithNewName != null && siteWithNewName.id != id) {
+            return Response.ok().status(409).build()
+        }
 
-        siteRepository.persist(site)
+        // Check if site with new domain exists
+        val siteWithNewDomain = siteRepository.findBydomain(site.domain)
+        if (siteWithNewDomain != null && siteWithNewDomain.id != id) {
+            return Response.ok().status(409).build()
+        }
+
+        val oldSite = siteRepository.findById(id) ?: return Response.ok().status(404).build()
+        oldSite.name = site.name
+        oldSite.domain = site.domain
+        oldSite.path = site.path
+        oldSite.https = site.https
+        oldSite.author = site.author
+        oldSite.enabled = site.enabled
+        oldSite.disable_checks = site.disable_checks
+        oldSite.dead_end = site.dead_end
+
+
+        siteRepository.persist(oldSite)
         return Response.ok(oldSite).status(200).build()
     }
 
@@ -229,7 +275,6 @@ class SiteResource(val siteRepository: SiteRepository) {
 
 }
 
-
 @Provider
 class SiteExceptionManager : ExceptionMapper<NotFoundException> {
     @Inject
@@ -238,8 +283,11 @@ class SiteExceptionManager : ExceptionMapper<NotFoundException> {
 
     @Produces(MediaType.TEXT_HTML)
     override fun toResponse(exception: NotFoundException?): Response? {
+
         return notFoundTemplate.data("exception", exception).render().let {
-            Response.status(Response.Status.NOT_FOUND).entity(it).build()
+            Response.status(Response.Status.NOT_FOUND).entity(it)
+                .header("Content-Type", "text/html")
+                .build()
         }
     }
 }
