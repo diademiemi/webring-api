@@ -67,6 +67,8 @@ class SiteChecker(val siteRepository: SiteRepository) {
 
                 var found = false
 
+                found = site.disable_checks
+
                 if (webring_https.toBoolean()) {
                     if (response.body()
                             .contains("https://${webring_host}${webring_path}/next?source=${site.domain}") || response.body()
