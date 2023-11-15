@@ -95,6 +95,11 @@ class SiteChecker(val siteRepository: SiteRepository) {
                     siteRepository.persist(site)
                 }
 
+                if (found) {
+                    site.dead_end = false
+                    siteRepository.persist(site)
+                }
+
             }
         }
 
