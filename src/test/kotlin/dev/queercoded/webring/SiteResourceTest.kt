@@ -272,7 +272,7 @@ class SiteResourceTest {
 
             .get("/next?source=test-site-c.example.com")
             .then()
-            .statusCode(301)
+            .statusCode(307)
     }
 
     @Test
@@ -284,7 +284,7 @@ class SiteResourceTest {
                 RestAssured.config().redirect(RedirectConfig.redirectConfig().followRedirects(false)))
             .get("/prev?source=test-site-c.example.com")
             .then()
-            .statusCode(301)
+            .statusCode(307)
     }
 
     @Test
