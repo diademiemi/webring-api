@@ -23,6 +23,10 @@ class SiteResource(val siteRepository: SiteRepository) {
     @Location("index.html")
     lateinit var index: Template
 
+    @Inject
+    @Location("nosuchdomain.html")
+    lateinit var noSuchDomain: Template
+
     @RestHeader("Authorization")
     lateinit var authHeader: String
 
@@ -58,7 +62,8 @@ class SiteResource(val siteRepository: SiteRepository) {
 
     fun getNextSite(sourceDomain: String): Site {
         val sites = listEnabledSites()
-        val site = sites.find { it.domain == sourceDomain } ?: return Site()
+        val site = sites.find { it.domain == sourceDomain }
+            ?: throw NullPointerException("Source domain not found: $sourceDomain")
         val index = sites.indexOf(site)
         val nextIndex = if (index == sites.lastIndex) 0 else index + 1
         return sites[nextIndex]
@@ -66,7 +71,8 @@ class SiteResource(val siteRepository: SiteRepository) {
 
     fun getPrevSite(sourceDomain: String): Site {
         val sites = listEnabledSites()
-        val site = sites.find { it.domain == sourceDomain } ?: return Site()
+        val site = sites.find { it.domain == sourceDomain }
+            ?: throw NullPointerException("Source domain not found: $sourceDomain")
         val index = sites.indexOf(site)
         val prevIndex = if (index == 0) sites.lastIndex else index - 1
         return sites[prevIndex]
@@ -76,48 +82,66 @@ class SiteResource(val siteRepository: SiteRepository) {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/sites/next/{source_domain}")
     fun getNextSiteJson(@PathParam("source_domain") sourceDomain: String): Response {
-        val site = getNextSite(sourceDomain)
-        return Response.ok(site).status(200).build()
+        return try {
+            val site = getNextSite(sourceDomain)
+            Response.ok(site).status(200).build()
+        } catch (e: NullPointerException) {
+            Response.status(Response.Status.NOT_FOUND).entity("Domain not found: $sourceDomain").build()
+        }
     }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/sites/prev/{source_domain}")
     fun getPrevSiteJson(@PathParam("source_domain") sourceDomain: String): Response {
-        val site = getPrevSite(sourceDomain)
-        return Response.ok(site).status(200).build()
+        return try {
+            val site = getPrevSite(sourceDomain)
+            Response.ok(site).status(200).build()
+        } catch (e: NullPointerException) {
+            Response.status(Response.Status.NOT_FOUND).entity("Domain not found: $sourceDomain").build()
+        }
     }
 
     @GET
     @Path("/next")
-    // Get the next site in order of creation. Find the given source_domain and return the next site. If the source_domain is the last site, return the first site.
     fun gotoNextSite(@QueryParam("source") sourceDomain: String): Response {
-        val nextSite = getNextSite(sourceDomain)
-
-        // Send redirect to the next
-        // Vars are domain, https: Bool, path, build this into URL
-        return if (nextSite.https) {
-            Response.status(Response.Status.TEMPORARY_REDIRECT)
-                .location(URI("https://${nextSite.domain}${nextSite.path}")).build()
-        } else {
-            Response.status(Response.Status.TEMPORARY_REDIRECT)
-                .location(URI("http://${nextSite.domain}${nextSite.path}")).build()
+        return try {
+            val nextSite = getNextSite(sourceDomain)
+            if (nextSite.https) {
+                Response.status(Response.Status.TEMPORARY_REDIRECT)
+                    .location(URI("https://${nextSite.domain}${nextSite.path}")).build()
+            } else {
+                Response.status(Response.Status.TEMPORARY_REDIRECT)
+                    .location(URI("http://${nextSite.domain}${nextSite.path}")).build()
+            }
+        } catch (e: NullPointerException) {
+            serveNoSuchDomainTemplate(sourceDomain)
         }
     }
 
     @GET
     @Path("/prev")
-    // Get the previous site in order of creation. Find the given source_domain and return the previous site. If the source_domain is the first site, return the last site.
-    fun gotoPrevSite(@QueryParam("source") source_domain: String): Response {
-        val prevSite = getPrevSite(source_domain)
+    fun gotoPrevSite(@QueryParam("source") sourceDomain: String): Response {
+        return try {
+            val prevSite = getPrevSite(sourceDomain)
+            if (prevSite.https) {
+                Response.status(Response.Status.TEMPORARY_REDIRECT)
+                    .location(URI("https://${prevSite.domain}${prevSite.path}")).build()
+            } else {
+                Response.status(Response.Status.TEMPORARY_REDIRECT)
+                    .location(URI("http://${prevSite.domain}${prevSite.path}")).build()
+            }
+        } catch (e: NullPointerException) {
+            serveNoSuchDomainTemplate(sourceDomain)
+        }
+    }
 
-        // Send redirect to the prev
-        // Vars are domain, https: Bool, path, build this into URL
-        return if (prevSite.https) {
-            Response.status(Response.Status.TEMPORARY_REDIRECT)
-                .location(URI("https://${prevSite.domain}${prevSite.path}")).build()
-        } else {
-            Response.status(Response.Status.TEMPORARY_REDIRECT)
-                .location(URI("http://${prevSite.domain}${prevSite.path}")).build()
+    private fun serveNoSuchDomainTemplate(sourceDomain: String): Response {
+        // Assuming notFoundTemplate is accessible here
+        return noSuchDomain.data("domain", sourceDomain).render().let {
+            Response.status(Response.Status.NOT_FOUND).entity(it)
+                .header("Content-Type", "text/html")
+                .build()
         }
     }
     // ADMIN API CALLS
@@ -229,34 +253,39 @@ class SiteResource(val siteRepository: SiteRepository) {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/sites/id/{id}/update")
-    fun updateSiteById(@PathParam("id") id: Long, site: Site): Response {
+    fun updateSiteById(@PathParam("id") id: Long, site: HashMap<String, String>): Response {
         // Check if authHeader is set
         if (!checkIfAuthenticated()) {
             return Response.ok().status(401).build()
         }
 
+        // This hashmap may be incomplete, so check whether a value exists before checking it
+
         // Check if site with new name exists
-        val siteWithNewName = siteRepository.findByName(site.name)
-        if (siteWithNewName != null && siteWithNewName.id != id) {
-            return Response.ok().status(409).build()
+        site["name"]?.let {
+            if (siteRepository.findByName(it) != null) {
+                return Response.ok().status(409).build()
+            }
         }
 
         // Check if site with new domain exists
-        val siteWithNewDomain = siteRepository.findBydomain(site.domain)
-        if (siteWithNewDomain != null && siteWithNewDomain.id != id) {
-            return Response.ok().status(409).build()
+        site["domain"]?.let {
+            if (siteRepository.findBydomain(it) != null) {
+                return Response.ok().status(409).build()
+            }
         }
 
         val oldSite = siteRepository.findById(id) ?: return Response.ok().status(404).build()
-        oldSite.name = site.name
-        oldSite.domain = site.domain
-        oldSite.path = site.path
-        oldSite.https = site.https
-        oldSite.author = site.author
-        oldSite.enabled = site.enabled
-        oldSite.disable_checks = site.disable_checks
-        oldSite.dead_end = site.dead_end
 
+        // Only update changed fields
+        site["name"]?.let { if (oldSite.name != it) oldSite.name = it }
+        site["domain"]?.let { if (oldSite.domain != it) oldSite.domain = it }
+        site["path"]?.let { if (oldSite.path != it) oldSite.path = it }
+        site["https"]?.let { it.toBoolean().let { value -> if (oldSite.https != value) oldSite.https = value } }
+        site["author"]?.let { if (oldSite.author != it) oldSite.author = it }
+        site["enabled"]?.let { it.toBoolean().let { value -> if (oldSite.enabled != value) oldSite.enabled = value } }
+        site["disable_checks"]?.let { it.toBoolean().let { value -> if (oldSite.disable_checks != value) oldSite.disable_checks = value } }
+        site["dead_end"]?.let { it.toBoolean().let { value -> if (oldSite.dead_end != value) oldSite.dead_end = value } }
 
         siteRepository.persist(oldSite)
         return Response.ok(oldSite).status(200).build()

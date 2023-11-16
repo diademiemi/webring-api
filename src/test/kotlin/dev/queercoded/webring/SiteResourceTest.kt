@@ -54,6 +54,7 @@ class SiteResourceTest {
         siteC.author = "Test User C"
         siteC.path = "/"
         siteC.enabled = false
+        siteC.https = false
         siteC.disable_checks = true
 
         initialSites = arrayListOf(siteA, siteB, siteC)
@@ -288,9 +289,9 @@ class SiteResourceTest {
     }
 
     @Test
-    @Order(18)
+    @Order(17)
     fun testUpdateSiteEndpoint1() {
-        var siteC = given()
+        val siteC = given()
             .`when`()
             .header("Authorization", "Bearer ${api_token}")
             .get("/sites/name/test-site-c.example.com")
@@ -298,25 +299,65 @@ class SiteResourceTest {
             .statusCode(200)
             .extract().`as`(Site::class.java)
 
-        siteC.name = "Test Site C Updated"
-        siteC.domain = "test-site-c-updated.example.com"
-        siteC.author = "Test User C Updated"
-        siteC.path = "/updated/"
-        siteC.https = false
+        val updateBody = hashMapOf("name" to "Test Site C Updated")
 
         given()
             .`when`()
             .contentType("application/json")
-            .body(siteC)
+            .body(updateBody)
             .header("Authorization", "Bearer ${api_token}")
             .put("/sites/id/${siteC.id}/update")
             .then()
             .statusCode(200)
             .assertThat().body("name", org.hamcrest.Matchers.equalTo("Test Site C Updated"))
+            .assertThat().body("domain", org.hamcrest.Matchers.equalTo("test-site-c.example.com"))
+            .assertThat().body("author", org.hamcrest.Matchers.equalTo("Test User C"))
+            .assertThat().body("path", org.hamcrest.Matchers.equalTo("/"))
+            .assertThat().body("https", org.hamcrest.Matchers.equalTo(false))
+
+    }
+
+    @Test
+    @Order(18)
+    fun testUpdateSiteEndpoint2() {
+        val siteC = given()
+            .`when`()
+            .header("Authorization", "Bearer ${api_token}")
+            .get("/sites/name/test-site-c.example.com")
+            .then()
+            .statusCode(200)
+            .extract().`as`(Site::class.java)
+
+        val updateBody = hashMapOf(
+            "name" to "Test Site C Updated Again",
+            "domain" to "test-site-c-updated.example.com",
+            "author" to "Test User C Updated",
+            "path" to "/updated/",
+            "https" to true.toString()  // Converting boolean to string
+        )
+
+        given()
+            .`when`()
+            .contentType("application/json")
+            .body(updateBody)
+            .header("Authorization", "Bearer ${api_token}")
+            .put("/sites/id/${siteC.id}/update")
+            .then()
+            .statusCode(200)
+            .assertThat().body("name", org.hamcrest.Matchers.equalTo("Test Site C Updated Again"))
             .assertThat().body("domain", org.hamcrest.Matchers.equalTo("test-site-c-updated.example.com"))
             .assertThat().body("author", org.hamcrest.Matchers.equalTo("Test User C Updated"))
             .assertThat().body("path", org.hamcrest.Matchers.equalTo("/updated/"))
-            .assertThat().body("https", org.hamcrest.Matchers.equalTo(false))
+            .assertThat().body("https", org.hamcrest.Matchers.equalTo(true))
+    }
 
+    @Test
+    @Order(19)
+    fun testGetNextSiteEndpoint3() {
+        given()
+            .`when`()
+            .get("/sites/prev/test-site-nonexistent.example.com")
+            .then()
+            .statusCode(404)
     }
 }
