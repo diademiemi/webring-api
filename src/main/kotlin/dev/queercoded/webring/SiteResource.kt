@@ -113,10 +113,10 @@ class SiteResource(val siteRepository: SiteRepository) {
         // Send redirect to the prev
         // Vars are domain, https: Bool, path, build this into URL
         return if (prevSite.https) {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
+            Response.status(Response.Status.TEMPORARY_REDIRECT)
                 .location(URI("https://${prevSite.domain}${prevSite.path}")).build()
         } else {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
+            Response.status(Response.Status.TEMPORARY_REDIRECT)
                 .location(URI("http://${prevSite.domain}${prevSite.path}")).build()
         }
     }
