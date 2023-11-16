@@ -96,10 +96,10 @@ class SiteResource(val siteRepository: SiteRepository) {
         // Send redirect to the next
         // Vars are domain, https: Bool, path, build this into URL
         return if (nextSite.https) {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
+            Response.status(Response.Status.TEMPORARY_REDIRECT)
                 .location(URI("https://${nextSite.domain}${nextSite.path}")).build()
         } else {
-            Response.status(Response.Status.MOVED_PERMANENTLY)
+            Response.status(Response.Status.TEMPORARY_REDIRECT)
                 .location(URI("http://${nextSite.domain}${nextSite.path}")).build()
         }
     }
@@ -124,6 +124,23 @@ class SiteResource(val siteRepository: SiteRepository) {
 
     fun checkIfAuthenticated(): Boolean {
         return authHeader == "Bearer ${api_token}"
+    }
+
+    @Inject
+    lateinit var siteChecker: SiteChecker
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sites/force-recheck")
+    fun forceRecheck(): Response {
+        // Check if authHeader is set
+        if (!checkIfAuthenticated()) {
+            return Response.ok().status(401).build()
+        }
+
+        siteChecker.checkSites()
+
+        return Response.ok().status(200).build()
     }
 
     @GET
