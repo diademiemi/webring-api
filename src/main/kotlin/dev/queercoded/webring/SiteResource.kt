@@ -107,13 +107,15 @@ class SiteResource(val siteRepository: SiteRepository) {
     fun gotoNextSite(@QueryParam("source") sourceDomain: String): Response {
         return try {
             val nextSite = getNextSite(sourceDomain)
+            var url = "http://${nextSite.domain}${nextSite.path}"
             if (nextSite.https) {
-                Response.status(Response.Status.TEMPORARY_REDIRECT)
-                    .location(URI("https://${nextSite.domain}${nextSite.path}")).build()
-            } else {
-                Response.status(Response.Status.TEMPORARY_REDIRECT)
-                    .location(URI("http://${nextSite.domain}${nextSite.path}")).build()
+                url = "https://${nextSite.domain}${nextSite.path}"
             }
+            Response.status(Response.Status.TEMPORARY_REDIRECT)
+                .location(URI(url))
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .build()
         } catch (e: NullPointerException) {
             serveNoSuchDomainTemplate(sourceDomain)
         }
@@ -124,13 +126,15 @@ class SiteResource(val siteRepository: SiteRepository) {
     fun gotoPrevSite(@QueryParam("source") sourceDomain: String): Response {
         return try {
             val prevSite = getPrevSite(sourceDomain)
+            var url = "http://${prevSite.domain}${prevSite.path}"
             if (prevSite.https) {
-                Response.status(Response.Status.TEMPORARY_REDIRECT)
-                    .location(URI("https://${prevSite.domain}${prevSite.path}")).build()
-            } else {
-                Response.status(Response.Status.TEMPORARY_REDIRECT)
-                    .location(URI("http://${prevSite.domain}${prevSite.path}")).build()
+                url = "https://${prevSite.domain}${prevSite.path}"
             }
+            Response.status(Response.Status.TEMPORARY_REDIRECT)
+                    .location(URI(url))
+                    .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                    .header("Pragma", "no-cache")
+                    .build()
         } catch (e: NullPointerException) {
             serveNoSuchDomainTemplate(sourceDomain)
         }
