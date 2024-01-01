@@ -1,8 +1,11 @@
 # webring-api
-
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+[Queer Coded Webring](https://webring.queercoded.dev) API & Frontend.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+
+API code: [SiteResource.kt](https://github.com/queercoded-dev/webring-api/blob/main/src/main/kotlin/dev/queercoded/webring/SiteResource.kt)  
+Integration Tests: [SiteResourceTest.kt](https://github.com/queercoded-dev/webring-api/blob/main/src/test/kotlin/dev/queercoded/webring/SiteResourceTest.kt)  
+
 
 ## Running the application in dev mode
 
@@ -10,8 +13,6 @@ You can run your application in dev mode that enables live coding using:
 ```shell script
 ./gradlew quarkusDev
 ```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
 ## Packaging and running the application
 
@@ -47,14 +48,123 @@ You can then execute your native executable with: `./build/webring-api-1.0.0-SNA
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
-## Related Guides
+# API Documentation
 
-- Kotlin ([guide](https://quarkus.io/guides/kotlin)): Write your services in Kotlin
+## Env vars
+```
+# Dev
+export WEBRING_API_TOKEN=ADMIN_TOKEN_CHANGE_ME
+export WEBRING_API_URL=http://127.0.0.1:8080
 
-## Provided Code
+# Prod
+export WEBRING_API_TOKEN=...
+export WEBRING_API_URL=https://webring.queercoded.dev
+```
 
-### RESTEasy Reactive
+## List sites
+```
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${WEBRING_API_TOKEN}" -v -k ${WEBRING_API_URL}/sites/all | jq
 
-Easily start your Reactive RESTful Web Services
+```
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+## List all disabled sites
+```
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${WEBRING_API_TOKEN}" -v -k ${WEBRING_API_URL}/sites/disabled | jq
+
+```
+
+## List all dead end sites
+```
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${WEBRING_API_TOKEN}" -v -k ${WEBRING_API_URL}/sites/all-dead-end | jq
+
+```
+
+## List all sites including disabled & dead ends
+```
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${WEBRING_API_TOKEN}" -v -k ${WEBRING_API_URL}/sites/all-plus-disabled | jq
+
+```
+
+## Create site
+```
+export SITE_DATA=$(cat << EOF
+{
+	"name": "Queer Coded",
+	"domain": "queercoded.dev",
+	"https": true,
+	"author": "Queer Coded Staff",
+	"path": "/",
+	"disable_checks": false,
+	"enabled": true
+}
+EOF
+)
+
+curl -X POST \
+-H \
+"Content-Type: application/json" \
+--data ${SITE_DATA} \
+-H \
+"Authorization: Bearer ${WEBRING_API_TOKEN}" \
+-v -k ${WEBRING_API_URL}/sites/ --raw
+
+```
+
+## Update site
+```
+export SITE_ID=1
+export SITE_DATA=$(cat << EOF
+{
+	"disable_checks": true
+}
+EOF
+)
+
+curl -X PUT \
+-H \
+"Content-Type: application/json" \
+--data ${SITE_DATA} \
+-H \
+"Authorization: Bearer ${WEBRING_API_TOKEN}" \
+-v -k ${WEBRING_API_URL}/sites/id/${SITE_ID}/update --raw
+```
+
+## Enable site
+```
+export SITE_ID=1
+
+curl -X PUT \
+-H \
+"Content-Type: application/json" \
+-H \
+"Authorization: Bearer ${WEBRING_API_TOKEN}" \
+-v -k ${WEBRING_API_URL}/sites/id/${SITE_ID}/enable --raw
+
+```
+
+## Disable site
+
+```
+export SITE_ID=1
+
+curl -X PUT \
+-H \
+"Content-Type: application/json" \
+-H \
+"Authorization: Bearer ${WEBRING_API_TOKEN}" \
+-v -k ${WEBRING_API_URL}/sites/id/${SITE_ID}/disable --raw
+
+```
+
+## Delete site
+```
+export SITE_ID=1
+
+curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer ${WEBRING_API_TOKEN}" -v -k ${WEBRING_API_URL}/sites/id/${SITE_ID} --raw
+```
+
+## Force recheck sites
+```
+curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer ${WEBRING_API_TOKEN}" -v -k ${WEBRING_API_URL}/sites/force-recheck --raw
+```
+
