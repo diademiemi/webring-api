@@ -1,10 +1,10 @@
 # webring-api
-[Queer Coded Webring](https://webring.queercoded.dev) API & Frontend.
+Wenring API & Frontend.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
-API code: [SiteResource.kt](https://github.com/queercoded-dev/webring-api/blob/main/src/main/kotlin/dev/queercoded/webring/SiteResource.kt)  
-Integration Tests: [SiteResourceTest.kt](https://github.com/queercoded-dev/webring-api/blob/main/src/test/kotlin/dev/queercoded/webring/SiteResourceTest.kt)  
+API code: [SiteResource.kt](https://github.com/diademiemi/webring-api/blob/main/src/main/kotlin/dev/queercoded/webring/SiteResource.kt)  
+Integration Tests: [SiteResourceTest.kt](https://github.com/diademiemi/webring-api/blob/main/src/test/kotlin/dev/queercoded/webring/SiteResourceTest.kt)  
 
 
 ## Running the application in dev mode
